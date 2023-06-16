@@ -1,5 +1,6 @@
 # StegCrackPass
-A password cracker for files hidden inside an image. This tool uses steghide to work.
+A password cracker for files hidden inside an image. This tool uses steghide to work. 
+The tool will find the password and extract the hidden file inside the image.
 # Requirements
 steghide
 # Usage
