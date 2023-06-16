@@ -1,0 +1,62 @@
+#!/bin/bash
+
+#Variables
+Verde='\033[01;32m'
+Amarillo='\033[01;33m'
+Rojo='\033[01;31m'
+Purpura='\033[01;35m'
+Turquesa='\033[01;36m'
+Gray='\e[0;37m\033[1m'
+EndColour='\033[00;00m'
+
+function ctrl_c(){
+    echo -e "\n\n${Rojo}[!] Exiting...{EndColour}\n"
+    exit 1
+}
+# CTRL + C
+trap ctrl_c SIGINT
+function helpPanel(){
+
+    echo -e "${Amarillo}[*]${Verde} Usage: ${Gray}${0}${EndColour}"
+    echo -e "\n\t${Amarillo}f)${Gray} Image with hidden data${EndColour}"
+    echo -e "\n\t${Amarillo}w)${Gray} Wordlist with passwords${EndColour}"
+}
+
+function Bruteforce(){
+
+    file=$1
+    wordlist=$2
+
+    cat $wordlist | while read password; do
+        response=$(steghide extract -sf $file -p "$password" 2>&1)
+        if [[ ! $response == *"could not extract"* ]]; then
+             echo -e "\n\n${Amarillo}[+]${Gray} Information obtained with password: ${Verde}${password}${EndColour}\n"
+             exit
+         fi
+    done
+
+}
+
+declare -i parameter_counter=0
+
+    while getopts "f:w:h" arg; do
+       case $arg in
+         f) file=$OPTARG && let parameter_counter+=1;;
+         w) wordlist=$OPTARG && let parameter_counter+=1;;
+         h) helpPanel;;
+       esac
+    done
+
+    if [ $parameter_counter -eq 2 ]; then
+        if [ -f $file ]; then
+            if [ -f $wordlist ]; then
+                Bruteforce $file $wordlist
+            else
+               echo -e "\n\n${Rojo}[-] The wordlist does not exist${EndColour}\n"
+            fi
+        else
+            echo -e "\n\n${Rojo}[-] The file does not exist${EndColour}\n"
+        fi
+    else
+        helpPanel
+    fi
